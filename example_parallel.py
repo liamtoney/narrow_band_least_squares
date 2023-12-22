@@ -160,3 +160,7 @@ elif ALPHA < 1.0:
 fig = narrow_band_processing_parameters_plot(rij, FREQ_BAND_TYPE, freqlist, WINLEN_list, NBANDS, FMIN, FMAX, w_array, h_array, FILTER_TYPE, FILTER_ORDER, FILTER_RIPPLE)
 fig.savefig('example_figures/Narrow_Band_Processing_Parameters', dpi=dpi_num)
 plt.close(fig)
+
+
+
+
