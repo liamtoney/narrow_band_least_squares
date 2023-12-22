@@ -1,3 +1,20 @@
+"""
+%load_ext autoreload
+%autoreload 2
+import matplotlib.pyplot as plt
+plt.ion()
+
+%pip install colorcet
+
+# Pavlof lahar plotting call
+from plotting import baz_mdccm_plot
+fig = baz_mdccm_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, baz_array, mdccm_array, t_array, num_compute_list)
+fig.axes[0].set_ylim(2, 14)
+fig.axes[0].set_xlim(left=UTCDateTime('2022-11-29T03:25').matplotlib_date)
+fig.axes[4].set_ylim(-10, 10)
+fig.savefig('/Users/ldtoney/Downloads/out.pdf', bbox_inches='tight', dpi=300)
+"""
+
 ####################################################################################
 ###################### Narrow-Band Least-Squares Method ############################
 ####################################################################################
@@ -33,17 +50,17 @@ from plotting import broadband_filter_response_plot, broadband_plot, narrow_band
 # Data collection
 # IRIS Example; Meteor in Alaska
 SOURCE = 'IRIS'                             # data source
-NETWORK = 'IM'                              # network
-STATION = 'I53H?'                           # station name
-LOCATION = '*'                              # location code
-CHANNEL = 'BDF'                             # channel code
-START = UTCDateTime('2018-12-19T01:45:00')  # Start time; obspy UTCDateTime
-END = START + 20*60                         # End time; obspy UTCDateTime
+NETWORK = 'AV'                              # network
+STATION = 'SDPI'                            # station name
+LOCATION = '0?'                             # location code
+CHANNEL = 'HDF'                             # channel code
+START = UTCDateTime('2022-11-29T03:25:00')  # Start time; obspy UTCDateTime
+END = START + 15*60                         # End time; obspy UTCDateTime
 
 ### Filtering ###
-FMIN = 0.1                  # minimum frequency [Hz]
-FMAX = 5.                   # maximum frequency [Hz]; should not exceed Nyquist
-NBANDS = 8                  # number of frequency bands
+FMIN = 1                    # minimum frequency [Hz]
+FMAX = 20                   # maximum frequency [Hz]; should not exceed Nyquist
+NBANDS = 20                 # number of frequency bands
 FREQ_BAND_TYPE = 'log'      # indicates spacing for frequency bands; 'linear', 'log', 'octave', '2_octave_over', 'onethird_octave', 'octave_linear'
 FILTER_TYPE = 'cheby1'      # filter type; 'butter', 'cheby1'
 FILTER_ORDER = 2
@@ -52,13 +69,13 @@ FILTER_RIPPLE = 0.01
 ### Window Length ###
 WINOVER = 0.5                   # window overlap
 WINDOW_LENGTH_TYPE = 'adaptive' # window length type; 'constant' or 'adaptive'
-WINLEN = 50                     # window length [s]; used if WINDOW_LENGTH_TYPE = 'constant' AND if WINDOW_LENGTH_TYPE = 'adaptive' (because of broadband processing)
-WINLEN_1 = 60                   # window length for band 1 (lowest frequency) [s]; only used if WINDOW_LENGTH_TYPE = 'adaptive'
-WINLEN_X = 30                   # window length for band X (highest frequency) [s]; only used if WINDOW_LENGTH_TYPE = 'adaptive'
+WINLEN = 20                     # window length [s]; used if WINDOW_LENGTH_TYPE = 'constant' AND if WINDOW_LENGTH_TYPE = 'adaptive' (because of broadband processing)
+WINLEN_1 = 20                   # window length for band 1 (lowest frequency) [s]; only used if WINDOW_LENGTH_TYPE = 'adaptive'
+WINLEN_X = 4                    # window length for band X (highest frequency) [s]; only used if WINDOW_LENGTH_TYPE = 'adaptive'
 
 ### Array processing ###
 ALPHA = 1.0                 # Use ordinary least-squares processing (not trimmed least-squares)
-MDCCM_THRESH = 0.6          # Threshold value of MdCCM for plotting; Must be between 0 and 1
+MDCCM_THRESH = 0.7          # Threshold value of MdCCM for plotting; Must be between 0 and 1
 
 ### Figure Save Options ###
 file_type = '.png'                          # file save type
@@ -138,21 +155,21 @@ fig = narrow_band_plot(FMIN, FMAX, stf_broad, NBANDS, freqlist, FREQ_BAND_TYPE, 
 fig.savefig('example_figures/Narrow_Band_Least_Squares', dpi=dpi_num)
 plt.close(fig)
 
-if ALPHA == 1.0:
-    ### Plot narrow-band least-squares array processing results ###
-    fig = narrow_band_stau_plot(FMIN, FMAX, stf_broad, NBANDS, freqlist, FREQ_BAND_TYPE, vel_array, baz_array, mdccm_array, t_array, sig_tau_array, num_compute_list, MDCCM_THRESH, ALPHA)
-    fig.savefig('example_figures/Narrow_Band_Least_Squares_Sigma_Tau', dpi=dpi_num)
-    plt.close(fig)
-
-elif ALPHA < 1.0:
-    ### Plot narrow-band least-squares array processing results ###
-    fig = narrow_band_lts_plot(FMIN, FMAX, stf_broad, NBANDS, freqlist, FREQ_BAND_TYPE, vel_array, baz_array, mdccm_array, t_array, stdict_all, num_compute_list, MDCCM_THRESH, ALPHA)
-    fig.savefig('example_figures/Narrow_Band_Least_Squares_LTS', dpi=dpi_num)
-    plt.close(fig)
-
-    fig = narrow_band_lts_dropped_station_plot(FMIN, FMAX, stf_broad, NBANDS, freqlist, FREQ_BAND_TYPE, vel_array, baz_array, mdccm_array, t_array, stdict_all, num_compute_list, MDCCM_THRESH)
-    fig.savefig('example_figures/Narrow_Band_Least_Squares_LTS_Dropped_Stations', dpi=dpi_num)
-    plt.close(fig)
+# if ALPHA == 1.0:
+#     ### Plot narrow-band least-squares array processing results ###
+#     fig = narrow_band_stau_plot(FMIN, FMAX, stf_broad, NBANDS, freqlist, FREQ_BAND_TYPE, vel_array, baz_array, mdccm_array, t_array, sig_tau_array, num_compute_list, MDCCM_THRESH, ALPHA)
+#     fig.savefig('example_figures/Narrow_Band_Least_Squares_Sigma_Tau', dpi=dpi_num)
+#     plt.close(fig)
+#
+# elif ALPHA < 1.0:
+#     ### Plot narrow-band least-squares array processing results ###
+#     fig = narrow_band_lts_plot(FMIN, FMAX, stf_broad, NBANDS, freqlist, FREQ_BAND_TYPE, vel_array, baz_array, mdccm_array, t_array, stdict_all, num_compute_list, MDCCM_THRESH, ALPHA)
+#     fig.savefig('example_figures/Narrow_Band_Least_Squares_LTS', dpi=dpi_num)
+#     plt.close(fig)
+#
+#     fig = narrow_band_lts_dropped_station_plot(FMIN, FMAX, stf_broad, NBANDS, freqlist, FREQ_BAND_TYPE, vel_array, baz_array, mdccm_array, t_array, stdict_all, num_compute_list, MDCCM_THRESH)
+#     fig.savefig('example_figures/Narrow_Band_Least_Squares_LTS_Dropped_Stations', dpi=dpi_num)
+#     plt.close(fig)
 
 
 

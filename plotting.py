@@ -8,10 +8,15 @@ import matplotlib.colorbar as cbar
 import time
 from copy import deepcopy
 from collections import Counter
+import colorcet as cc
+import matplotlib.colors as colors
+import matplotlib.dates as mdates
 
+
+CENTER_VEL = 0.343  # [km/s]
 
 fonts = 14
-rcParams.update({'font.size': fonts})
+# rcParams.update({'font.size': fonts})
 
 
 def broadband_filter_response_plot(w, h, FMIN, FMAX, FILTER_TYPE, FILTER_ORDER, FILTER_RIPPLE):
@@ -65,7 +70,7 @@ def broadband_plot(st, vel_array, baz_array, mdccm_array, t_array, MDCCM_THRESH,
         fig: Figure handle (:class:`~matplotlib.figure.Figure`)
     '''
 
-    cm = 'YlGnBu'
+    cm = cc.m_fire_r
     cax = [0,1.0]
 
     fig = plt.figure(figsize=(15,15))
@@ -283,8 +288,8 @@ def narrow_band_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_array
         fig: Figure handle (:class:`~matplotlib.figure.Figure`)
     '''
     timevec = st[0].times('matplotlib') # Time vector for plotting
-    cm = 'turbo'
-    cm_mdccm = 'YlGnBu'
+    cm = cc.m_rainbow
+    cm_mdccm = cc.m_fire_r
     cax = (FMIN, FMAX)
 
     fig = plt.figure(figsize=(15,20))
@@ -295,11 +300,11 @@ def narrow_band_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_array
     ax0.plot(timevec, st[0], 'k') # plots pressure for the first band
 
     # Initialize other plots
-    ax1 = plt.subplot(gs[1,0])  # MdCCM Plot
-    ax2 = plt.subplot(gs[2,0])  # Backazimuth Plot
-    ax3 = plt.subplot(gs[3,0])  # Trace Velocity Plot
-    ax4 = plt.subplot(gs[4,0])  # Scatter Plot
-    ax5 = plt.subplot(gs[5,0])  # Scatter Plot Trace Velocity
+    ax1 = plt.subplot(gs[1,0], sharex=ax0)  # MdCCM Plot
+    ax2 = plt.subplot(gs[2,0], sharex=ax1)  # Backazimuth Plot
+    ax3 = plt.subplot(gs[3,0], sharex=ax2)  # Trace Velocity Plot
+    ax4 = plt.subplot(gs[4,0], sharex=ax3)  # Scatter Plot
+    ax5 = plt.subplot(gs[5,0], sharex=ax4)  # Scatter Plot Trace Velocity
 
     for ii in range(NBANDS):
         # Check if overlapping bands
@@ -327,18 +332,19 @@ def narrow_band_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_array
 
         # Initialize colorbars
         normal_baz = pl.Normalize(0, 360)
-        colors_baz = pl.cm.turbo(normal_baz(baz_float))
+        colors_baz = cc.m_CET_C6(normal_baz(baz_float))
 
         for jj in range(len(t_float)-1):
             if vel_float[jj] >= 0.5:
                 vel_float[jj] = 0.51
             elif vel_float[jj] <= 0.2:
                 vel_float[jj] = 0.19
-        normal_vel = pl.Normalize(0.2,0.5)
-        colors_vel = pl.cm.turbo(normal_vel(vel_float))
+        vmax = 0.5
+        normal_vel = colors.CenteredNorm(vcenter=CENTER_VEL, halfrange=vmax - CENTER_VEL)
+        colors_vel = cc.m_CET_D8(normal_vel(vel_float))
 
         normal_mdccm = pl.Normalize(0.,1.0)
-        colors_mdccm = pl.cm.YlGnBu(normal_mdccm(mdccm_float))
+        colors_mdccm = cc.m_fire_r(normal_mdccm(mdccm_float))
 
 
         # Find indices where mdccm_float >= MDCCM_THRESH
@@ -388,7 +394,7 @@ def narrow_band_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_array
                 x_temp = t_float[jj]
                 y_temp = tempfmin
                 # MdCCM Plot
-                rect = Rectangle((x_temp, y_temp), width_temp, height_temp, color=colors_mdccm[jj], alpha=0.5)
+                rect = Rectangle((x_temp, y_temp), width_temp, height_temp, color=colors_mdccm[jj], alpha=0.3)
                 ax1.add_patch(rect)
 
 
@@ -400,18 +406,20 @@ def narrow_band_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_array
 
     # Add colorbar to mdccm plot
     cax = plt.subplot(gs[1,1])
-    cb1 = cbar.ColorbarBase(cax, cmap=pl.cm.YlGnBu,norm=normal_mdccm,orientation='vertical')
+    cb1 = cbar.ColorbarBase(cax, cmap=cc.m_fire_r,norm=normal_mdccm,orientation='vertical')
     cax.set_ylabel('MdCCM', fontsize=fonts+2, fontweight='bold')
 
     # Add colorbar to backazimuth plot
     cax = plt.subplot(gs[2,1])
-    cb2 = cbar.ColorbarBase(cax, cmap=pl.cm.turbo,norm=normal_baz,orientation='vertical', ticks=[0,90,180,270,360])
+    cb2 = cbar.ColorbarBase(cax, cmap=cc.m_CET_C6,norm=normal_baz,orientation='vertical', ticks=[0,90,180,270,360])
     cax.set_ylabel('Backazimuth [deg]', fontsize=fonts+2, fontweight='bold')
 
     # Add colorbar to trace velocity plot
     cax = plt.subplot(gs[3,1])
-    cb2 = cbar.ColorbarBase(cax, cmap=pl.cm.turbo,norm=normal_vel,orientation='vertical')
+    cb2 = cbar.ColorbarBase(cax, cmap=cc.m_CET_D8,norm=normal_vel,orientation='vertical')
     cax.set_ylabel('Trace Velocity [km/s]', fontsize=fonts+2, fontweight='bold')
+    vmin = 0.2
+    cax.set_ylim(bottom=vmin)
 
     # Add colorbar to scatter plot of backazimuth and trace velocity
     cbaxes = plt.subplot(gs[4:6,1])
@@ -499,8 +507,8 @@ def narrow_band_stau_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_
         fig: Figure handle (:class:`~matplotlib.figure.Figure`)
     '''
     timevec = st[0].times('matplotlib') # Time vector for plotting
-    cm = 'turbo'
-    cm_mdccm = 'YlGnBu'
+    cm = cc.m_rainbow
+    cm_mdccm = cc.m_fire_r
     cax = (FMIN, FMAX)
 
     fig = plt.figure(figsize=(15,20))
@@ -548,25 +556,26 @@ def narrow_band_stau_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_
 
         # Initialize colorbars
         normal_baz = pl.Normalize(0, 360)
-        colors_baz = pl.cm.jet(normal_baz(baz_float))
+        colors_baz = cc.m_CET_C6(normal_baz(baz_float))
 
         for jj in range(len(t_float)-1):
             if vel_float[jj] >= 0.5:
                 vel_float[jj] = 0.51
             elif vel_float[jj] <= 0.2:
                 vel_float[jj] = 0.19
-        normal_vel = pl.Normalize(0.2,0.5)
-        colors_vel = pl.cm.jet(normal_vel(vel_float))
+        vmax = 0.5
+        normal_vel = colors.CenteredNorm(vcenter=CENTER_VEL, halfrange=vmax - CENTER_VEL)
+        colors_vel = cc.m_CET_D8(normal_vel(vel_float))
 
         normal_mdccm = pl.Normalize(0.,1.0)
-        colors_mdccm = pl.cm.YlGnBu(normal_mdccm(mdccm_float))
+        colors_mdccm = cc.m_fire_r(normal_mdccm(mdccm_float))
 
         for jj in range(len(t_float)-1):
             if sig_tau_float[jj] >= 5:
                 sig_tau_float[jj] = 5.1
 
         normal_sig_tau = pl.Normalize(0.,5.0)
-        colors_sig_tau = pl.cm.YlGnBu_r(normal_sig_tau(sig_tau_float))
+        colors_sig_tau = pl.cm.cividis(normal_sig_tau(sig_tau_float))
 
 
         # Find indices where mdccm_float >= MDCCM_THRESH
@@ -630,7 +639,7 @@ def narrow_band_stau_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_
                 x_temp = t_float[jj]
                 y_temp = tempfmin
                 # MdCCM Plot
-                rect = Rectangle((x_temp, y_temp), width_temp, height_temp, color=colors_mdccm[jj], alpha=0.5)
+                rect = Rectangle((x_temp, y_temp), width_temp, height_temp, color=colors_mdccm[jj], alpha=0.3)
                 ax1.add_patch(rect)
 
 
@@ -642,23 +651,25 @@ def narrow_band_stau_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_
 
     # Add colorbar to mdccm plot
     cax = plt.subplot(gs[1,1])
-    cb1 = cbar.ColorbarBase(cax, cmap=pl.cm.YlGnBu,norm=normal_mdccm,orientation='vertical')
+    cb1 = cbar.ColorbarBase(cax, cmap=cc.m_fire_r,norm=normal_mdccm,orientation='vertical')
     cax.set_ylabel('MdCCM', fontsize=fonts+2, fontweight='bold')
 
     # Add colorbar to sigma tau plot
     cax = plt.subplot(gs[2,1])
-    cb2 = cbar.ColorbarBase(cax, cmap=pl.cm.YlGnBu_r,norm=normal_sig_tau,orientation='vertical')
+    cb2 = cbar.ColorbarBase(cax, cmap=pl.cm.cividis,norm=normal_sig_tau,orientation='vertical')
     cax.set_ylabel('Sigma Tau\n('r'$\sigma_\tau$)', fontsize=fonts+2, fontweight='bold')
 
     # Add colorbar to backazimuth plot
     cax = plt.subplot(gs[3,1])
-    cb2 = cbar.ColorbarBase(cax, cmap=pl.cm.turbo,norm=normal_baz,orientation='vertical', ticks=[0,90,180,270,360])
+    cb2 = cbar.ColorbarBase(cax, cmap=cc.m_CET_C6,norm=normal_baz,orientation='vertical', ticks=[0,90,180,270,360])
     cax.set_ylabel('Backazimuth\n[deg]', fontsize=fonts+2, fontweight='bold')
 
     # Add colorbar to trace velocity plot
     cax = plt.subplot(gs[4,1])
-    cb2 = cbar.ColorbarBase(cax, cmap=pl.cm.turbo,norm=normal_vel,orientation='vertical')
+    cb2 = cbar.ColorbarBase(cax, cmap=cc.m_CET_D8,norm=normal_vel,orientation='vertical')
     cax.set_ylabel('Trace Velocity\n[km/s]', fontsize=fonts+2, fontweight='bold')
+    vmin = 0.2
+    cax.set_ylim(bottom=vmin)
 
     # Add colorbar to scatter plot
     cbaxes = plt.subplot(gs[5:8,1])
@@ -769,8 +780,8 @@ def narrow_band_lts_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_a
         fig: Figure handle (:class:`~matplotlib.figure.Figure`)
     '''
     timevec = st[0].times('matplotlib') # Time vector for plotting
-    cm = 'turbo'
-    cm_mdccm = 'YlGnBu'
+    cm = cc.m_rainbow
+    cm_mdccm = cc.m_fire_r
     cax = (FMIN, FMAX)
 
     fig = plt.figure(figsize=(15,20))
@@ -781,12 +792,12 @@ def narrow_band_lts_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_a
     ax0.plot(timevec, st[0], 'k') # plots pressure for the first band
 
     # Initialize other plots
-    ax1 = plt.subplot(gs[1,0])  # MdCCM Plot
-    ax2 = plt.subplot(gs[2,0])  # Backazimuth Plot
-    ax3 = plt.subplot(gs[3,0])  # Trace Velocity Plot
-    ax4 = plt.subplot(gs[4,0])  # Scatter Plot; Backazimuth
-    ax5 = plt.subplot(gs[5,0])  # Scatter Plot Trace Velocity
-    ax6 = plt.subplot(gs[6,0])  # Scatter Plot; Dropped stations
+    ax1 = plt.subplot(gs[1,0], sharex=ax0)  # MdCCM Plot
+    ax2 = plt.subplot(gs[2,0], sharex=ax1)  # Backazimuth Plot
+    ax3 = plt.subplot(gs[3,0], sharex=ax2)  # Trace Velocity Plot
+    ax4 = plt.subplot(gs[4,0], sharex=ax3)  # Scatter Plot; Backazimuth
+    ax5 = plt.subplot(gs[5,0], sharex=ax4)  # Scatter Plot Trace Velocity
+    ax6 = plt.subplot(gs[6,0], sharex=ax5)  # Scatter Plot; Dropped stations
 
 
     for ii in range(NBANDS):
@@ -815,18 +826,19 @@ def narrow_band_lts_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_a
 
         # Initialize colorbars
         normal_baz = pl.Normalize(0, 360)
-        colors_baz = pl.cm.jet(normal_baz(baz_float))
+        colors_baz = cc.m_CET_C6(normal_baz(baz_float))
 
         for jj in range(len(t_float)-1):
             if vel_float[jj] >= 0.5:
                 vel_float[jj] = 0.51
             elif vel_float[jj] <= 0.2:
                 vel_float[jj] = 0.19
-        normal_vel = pl.Normalize(0.2,0.5)
-        colors_vel = pl.cm.jet(normal_vel(vel_float))
+        vmax = 0.5
+        normal_vel = colors.CenteredNorm(vcenter=CENTER_VEL, halfrange=vmax - CENTER_VEL)
+        colors_vel = cc.m_CET_D8(normal_vel(vel_float))
 
         normal_mdccm = pl.Normalize(0.,1.0)
-        colors_mdccm = pl.cm.YlGnBu(normal_mdccm(mdccm_float))
+        colors_mdccm = cc.m_fire_r(normal_mdccm(mdccm_float))
 
 
 
@@ -879,7 +891,7 @@ def narrow_band_lts_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_a
                 x_temp = t_float[jj]
                 y_temp = tempfmin
                 # MdCCM Plot
-                rect = Rectangle((x_temp, y_temp), width_temp, height_temp, color=colors_mdccm[jj], alpha=0.5)
+                rect = Rectangle((x_temp, y_temp), width_temp, height_temp, color=colors_mdccm[jj], alpha=0.3)
                 ax1.add_patch(rect)
 
 
@@ -953,19 +965,21 @@ def narrow_band_lts_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_a
 
     # Add colorbar to mdccm plot
     cax = plt.subplot(gs[1,1])
-    cb1 = cbar.ColorbarBase(cax, cmap=pl.cm.YlGnBu,norm=normal_mdccm,orientation='vertical')
+    cb1 = cbar.ColorbarBase(cax, cmap=cc.m_fire_r,norm=normal_mdccm,orientation='vertical')
     cax.set_ylabel('MdCCM', fontsize=fonts+2, fontweight='bold')
 
 
     # Add colorbar to backazimuth plot
     cax = plt.subplot(gs[2,1])
-    cb2 = cbar.ColorbarBase(cax, cmap=pl.cm.turbo,norm=normal_baz,orientation='vertical', ticks=[0,90,180,270,360])
+    cb2 = cbar.ColorbarBase(cax, cmap=cc.m_CET_C6,norm=normal_baz,orientation='vertical', ticks=[0,90,180,270,360])
     cax.set_ylabel('Backazimuth\n[deg]', fontsize=fonts+2, fontweight='bold')
 
     # Add colorbar to trace velocity plot
     cax = plt.subplot(gs[3,1])
-    cb2 = cbar.ColorbarBase(cax, cmap=pl.cm.turbo,norm=normal_vel,orientation='vertical')
+    cb2 = cbar.ColorbarBase(cax, cmap=cc.m_CET_D8,norm=normal_vel,orientation='vertical')
     cax.set_ylabel('Trace Velocity\n[km/s]', fontsize=fonts+2, fontweight='bold')
+    vmin = 0.2
+    cax.set_ylim(bottom=vmin)
 
     # Add colorbar to scatter plot
     cbaxes = plt.subplot(gs[4:6,1])
@@ -1059,8 +1073,8 @@ def narrow_band_lts_dropped_station_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_
         fig: Figure handle (:class:`~matplotlib.figure.Figure`)
     '''
     timevec = st[0].times('matplotlib') # Time vector for plotting
-    cm = 'turbo'
-    cm_mdccm = 'YlGnBu'
+    cm = cc.m_rainbow
+    cm_mdccm = cc.m_fire_r
     cax = (FMIN, FMAX)
 
     # Find number of elements in array
@@ -1194,7 +1208,7 @@ def baz_freq_plot(FMIN, FMAX, NBANDS, freqlist, vel_array, baz_array, mdccm_arra
     Returns:
         fig: Figure handle (:class:`~matplotlib.figure.Figure`)
     '''
-    cm = 'turbo'
+    cm = cc.m_rainbow
     cax = (FMIN, FMAX)
 
     fig = plt.figure(figsize=(15,7))
@@ -1266,4 +1280,135 @@ def baz_freq_plot(FMIN, FMAX, NBANDS, freqlist, vel_array, baz_array, mdccm_arra
 
 
     plt.tight_layout()
+    return fig
+
+
+def baz_mdccm_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, baz_array, mdccm_array, t_array, num_compute_list):
+    """
+    x-axis = time; y-axis = frequency, color = back azimuth, transparency = MdCCM, trace overlain
+
+    Args:
+        FMIN: Minimum frequency [float] [Hz]
+        FMAX: Maximum frequency [float] [Hz]
+        st: Filtered data. Assumes response has been removed. (:class:`~obspy.core.stream.Stream`)
+        NBANDS: number of frequency bands [integer]
+        freqlist: List of frequency bounds for narrow-band processing
+        FREQ_BAND_TYPE: indicates linear or logarithmic spacing for frequency bands
+        baz_array: array of backazimuth processing results
+        mdccm_array: array of MdCCM processing results
+        t_array: array of times for processing results
+        num_compute_list: list of number of windows for each frequency band array processing
+    Returns:
+        fig: Figure handle (:class:`~matplotlib.figure.Figure`)
+    """
+
+    mdccm_array[mdccm_array > 1] = 1  # BUGFIX FOR CRAZY HIGH MDCCM
+
+    st_plot = st.copy()
+    # st_plot.filter('bandpass', freqmin=2, freqmax=8, zerophase=True).taper(0.01)
+
+    timevec = st_plot[0].times('matplotlib') # Time vector for plotting
+    cmap = cc.m_cyclic_isoluminant  # For back azimuth
+
+    fig, (ax1, _, cax1, cax2) = plt.subplots(ncols=4, gridspec_kw=dict(width_ratios=[100, 15, 1, 1]), figsize=[12, 3])
+
+    # Initialize other plots
+    ax2 = ax1.twinx()
+    _.axis('off')
+
+    # Pressure plot (broadband bandpass-filtered data)
+    trace_color = 'gray'
+    ax2.plot(timevec, st_plot[0], color=trace_color, lw=0.5, clip_on=False, solid_capstyle='round') # plots pressure for the first band
+    ax2.set_ylabel('Pressure (Pa)', color=trace_color)
+    ax2.tick_params(axis='y', colors=trace_color)
+
+    # Set up norm for MdCCM
+    mdccm_array_mask = mdccm_array[mdccm_array > 0]
+    gamma = 3
+    normal_mdccm = colors.PowerNorm(gamma=gamma, vmin=mdccm_array_mask.min(), vmax=mdccm_array_mask.max())
+
+    # Set up norm for back azimuth
+    normal_baz = pl.Normalize(0, 360)
+
+    # Loop over each band
+    for ii in range(NBANDS):
+        # Check if overlapping bands
+        if FREQ_BAND_TYPE == '2_octave_over':
+            tempfmin = freqlist[ii]
+            tempfmax = freqlist[ii+2]
+        # All others
+        else:
+            tempfmin = freqlist[ii]
+            tempfmax = freqlist[ii+1]
+        height_temp = tempfmax - tempfmin # height of frequency rectangles
+        tempfavg = tempfmin + (height_temp/2)        # center point of the frequency interval
+
+        # Gather array processing results for this narrow frequency band
+        baz_temp = baz_array[ii,:]
+        mdccm_temp = mdccm_array[ii,:]
+        t_temp = t_array[ii,:]
+
+        # Trim each vector to ignore NAN and zero values
+        baz_float = baz_temp[:num_compute_list[ii]]
+        mdccm_float = mdccm_temp[:num_compute_list[ii]]
+        t_float = t_temp[:num_compute_list[ii]]
+
+        # Loop through each narrow-band results vector and plot rectangles
+        for jj in range(len(t_float)-1):
+            width_temp = t_float[jj+1] - t_float[jj]
+            x_temp = t_float[jj]
+            y_temp = tempfmin
+            rect = Rectangle((x_temp, y_temp), width_temp, height_temp, color=cmap(normal_baz(baz_float))[jj], linewidth=0, alpha=normal_mdccm(mdccm_float[jj]))
+            ax1.add_patch(rect)
+
+    # MdCCM "colorbar" (really it's showing transparency)
+    ylim = [mdccm_array_mask.min(), mdccm_array_mask.max()]
+    npts = 1000
+    cax1.pcolormesh(
+        [0, 1],  # Just to stretch the image
+        np.linspace(*ylim, npts),  # Linear y-axis
+        np.power(np.expand_dims(np.linspace(*ylim, npts - 1), 1), normal_mdccm.gamma),  # Scaled values
+        cmap=cc.m_gray_r,
+        rasterized=True,
+        )
+    cax1.set_xticks([])
+    cax1.set_ylabel('MdCCM')
+
+    # Back azimuth colorbar
+    cbar.ColorbarBase(cax2, cmap=cmap, norm=normal_baz)
+    cax2.yaxis.set_major_locator(plt.MultipleLocator(90))
+    cax2.set_ylabel('Back azimuth (°)')
+
+    # Pressure waveform axis tweaks
+    lim = np.abs(st_plot[0].max())
+    ax2.set_ylim(-lim, lim)
+    ax2.spines['left'].set_visible(False)
+    ax2.spines['bottom'].set_visible(False)
+    ax2.spines['right'].set_color(trace_color)
+    ax2.spines['right'].set_position(('outward', 10))
+
+    # Image plot axis tweaks
+    ax1.set_ylabel('Frequency (Hz)')
+    minute_interval = 2
+    second_interval = 30
+    loc = ax1.xaxis.set_major_locator(mdates.MinuteLocator(range(60)[::minute_interval]))
+    ax1.xaxis.set_minor_locator(mdates.SecondLocator(range(60)[::second_interval]))
+    formatter = mdates.ConciseDateFormatter(loc)
+    template = '%d %B %Y'
+    formatter.offset_formats[3] = template
+    formatter.offset_formats[4] = template
+    ax1.xaxis.set_major_formatter(formatter)
+    ax1.set_ylim(FMIN,FMAX)
+    ax1.set_xlim(t_float[0],t_float[-1])
+    ax1.spines['right'].set_visible(False)
+    ax1.spines['left'].set_position(('outward', 10))
+    ax1.spines['bottom'].set_position(('outward', 10))
+
+    # Overall tweaks
+    for ax in ax1, ax2:
+        ax.spines['top'].set_visible(False)
+
+    fig.tight_layout()
+    fig.subplots_adjust(wspace=0)  # Must come AFTER tight_layout() call!
+
     return fig
