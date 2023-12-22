@@ -10,7 +10,7 @@ from copy import deepcopy
 from collections import Counter
 
 
-fonts = 14                                 
+fonts = 14
 rcParams.update({'font.size': fonts})
 
 
@@ -31,7 +31,7 @@ def broadband_filter_response_plot(w, h, FMIN, FMAX, FILTER_TYPE, FILTER_ORDER, 
     fig = plt.figure(figsize=(8,5))
     gs = gridspec.GridSpec(1,1)
 
-    ax0 = plt.subplot(gs[0,0]) 
+    ax0 = plt.subplot(gs[0,0])
     ax0.semilogx(w, 20 * np.log10(abs(h)))
     ax0.axvline(x=FMIN, color='k', ls='--')
     ax0.axvline(x=FMAX, color='k', ls='--')
@@ -43,14 +43,14 @@ def broadband_filter_response_plot(w, h, FMIN, FMAX, FILTER_TYPE, FILTER_ORDER, 
     ax0.text(0.02, 0.1, 'Filter Order = ' + str(FILTER_ORDER), transform=ax0.transAxes)
     if FILTER_TYPE == 'cheby1':
         ax0.text(0.02, 0.15, 'Ripple = ' + str(FILTER_RIPPLE), transform=ax0.transAxes)
-    plt.tight_layout()                 
+    plt.tight_layout()
 
     return fig
 
 
 def broadband_plot(st, vel_array, baz_array, mdccm_array, t_array, MDCCM_THRESH, ALPHA, stdict, sig_tau):
     '''
-    Plots the array processing results for broadband least-squares processing 
+    Plots the array processing results for broadband least-squares processing
     Args:
         st: Filtered data. Assumes response has been removed. (:class:`~obspy.core.stream.Stream`)
         vel_array: array of trace velocity processing results
@@ -58,13 +58,13 @@ def broadband_plot(st, vel_array, baz_array, mdccm_array, t_array, MDCCM_THRESH,
         mdccm_array: array of MdCCM processing results
         t_array: array of times for processing results
         MDCCM_THRESH: Threshold value of MdCCM for plotting; Must be between 0 and 1 [float]
-        ALPHA: Use least-squares or LTS processing 
+        ALPHA: Use least-squares or LTS processing
         stdict: dictionary with dropped elements for LTS [dictionary]
         sig_tau: sigma tau processing results
     Returns:
         fig: Figure handle (:class:`~matplotlib.figure.Figure`)
     '''
-    
+
     cm = 'YlGnBu'
     cax = [0,1.0]
 
@@ -74,49 +74,49 @@ def broadband_plot(st, vel_array, baz_array, mdccm_array, t_array, MDCCM_THRESH,
     # Pressure plot (broadband bandpass filtered data)
     ax0 = plt.subplot(gs[0,0])  # Pressure Plot
     timevec = st[0].times('matplotlib') # Time vector for plotting
-    ax0.plot(timevec, st[0], 'k') 
-    ax0.set_ylabel('Pressure [Pa]', fontsize=fonts+2, fontweight='bold') 
-    ax0.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax0.plot(timevec, st[0], 'k')
+    ax0.set_ylabel('Pressure [Pa]', fontsize=fonts+2, fontweight='bold')
+    ax0.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax0.set_title('a)', loc='left', fontsize=fonts+2, fontweight='bold')
     ax0.xaxis_date()
     ax0.set_xlim(timevec[1], timevec[-1])
 
     # MdCCM
-    ax1 = plt.subplot(gs[1,0])  
+    ax1 = plt.subplot(gs[1,0])
     sc = ax1.scatter(t_array, mdccm_array, c=mdccm_array, edgecolors='k', lw=0.3, cmap=cm)
     sc.set_clim(cax)
-    ax1.set_ylabel('MdCCM', fontsize=fonts+2, fontweight='bold')  
-    ax1.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax1.set_ylabel('MdCCM', fontsize=fonts+2, fontweight='bold')
+    ax1.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax1.set_title('b)', loc='left', fontsize=fonts+2, fontweight='bold')
     ax1.xaxis_date()
     ax1.set_ylim(0,1)
     ax1.set_xlim(t_array[0],t_array[-1])
     ax1.plot([t_array[0], t_array[-1]], [MDCCM_THRESH, MDCCM_THRESH], 'k--')
 
-    # Backazimuth 
-    ax2 = plt.subplot(gs[2,0])  
+    # Backazimuth
+    ax2 = plt.subplot(gs[2,0])
     sc = ax2.scatter(t_array, baz_array, c=mdccm_array, edgecolors='k', lw=0.3, cmap=cm)
     sc.set_clim(cax)
-    ax2.set_ylabel('Backazimuth [deg]', fontsize=fonts+2, fontweight='bold')  
-    ax2.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax2.set_ylabel('Backazimuth [deg]', fontsize=fonts+2, fontweight='bold')
+    ax2.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax2.set_title('c)', loc='left', fontsize=fonts+2, fontweight='bold')
     ax2.xaxis_date()
     ax2.set_ylim(0,360)
     ax2.set_xlim(t_array[0],t_array[-1])
 
-    # Trace Velocity 
-    ax3 = plt.subplot(gs[3,0])  
+    # Trace Velocity
+    ax3 = plt.subplot(gs[3,0])
     sc = ax3.scatter(t_array, vel_array, c=mdccm_array, edgecolors='k', lw=0.3, cmap=cm)
     sc.set_clim(cax)
-    ax3.set_ylabel('Trace Velocity [km/s]', fontsize=fonts+2, fontweight='bold')  
-    ax3.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax3.set_ylabel('Trace Velocity [km/s]', fontsize=fonts+2, fontweight='bold')
+    ax3.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax3.set_title('d)', loc='left', fontsize=fonts+2, fontweight='bold')
     ax3.xaxis_date()
     ax3.set_ylim(0.2,0.5)
     ax3.set_xlim(t_array[0],t_array[-1])
 
     # Sigma Tau or Dropped Elements
-    ax4 = plt.subplot(gs[4,0])  
+    ax4 = plt.subplot(gs[4,0])
     if ALPHA == 1.0:
         # Plot Sigma Tau
         sc = ax4.scatter(t_array, sig_tau, c=mdccm_array, edgecolors='k', lw=0.3, cmap=cm)
@@ -125,7 +125,7 @@ def broadband_plot(st, vel_array, baz_array, mdccm_array, t_array, MDCCM_THRESH,
         ax4.set_ylabel('Sigma Tau ('r'$\sigma_\tau$)', fontsize=fonts, fontweight='bold')
 
         # Add the MdCCM colorbar
-        cbaxes = plt.subplot(gs[1:5,1]) 
+        cbaxes = plt.subplot(gs[1:5,1])
         hc = plt.colorbar(sc, cax=cbaxes)
         hc.set_label('MdCCM', fontsize=fonts, fontweight='bold')
 
@@ -161,14 +161,14 @@ def broadband_plot(st, vel_array, baz_array, mdccm_array, t_array, MDCCM_THRESH,
         hc.set_label('# of Flagged\nElement Pairs', fontsize=fonts+2, fontweight='bold')
 
         # Add the MdCCM colorbar
-        cbaxes = plt.subplot(gs[1:4,1]) 
+        cbaxes = plt.subplot(gs[1:4,1])
         hc = plt.colorbar(sc, cax=cbaxes)
         hc.set_label('MdCCM', fontsize=fonts, fontweight='bold')
 
     ax4.set_title('e)', loc='left', fontsize=fonts+2, fontweight='bold')
-    ax4.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax4.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax4.xaxis_date()
-    ax4.set_xlim(t_array[0],t_array[-1])  
+    ax4.set_xlim(t_array[0],t_array[-1])
 
 
     plt.tight_layout()
@@ -178,7 +178,7 @@ def broadband_plot(st, vel_array, baz_array, mdccm_array, t_array, MDCCM_THRESH,
 
 def narrow_band_processing_parameters_plot(rij, FREQ_BAND_TYPE, freqlist, WINLEN_list, NBANDS, FMIN, FMAX, w_array, h_array, FILTER_TYPE, FILTER_ORDER, FILTER_RIPPLE):
     '''
-    Plots the processing parameters for narrow-band least-squares processing 
+    Plots the processing parameters for narrow-band least-squares processing
     Args:
         rij: Coordinates of sensors as eastings & northings in a ``(2, N)`` array [km]
         FREQ_BAND_TYPE: indicates linear or logarithmic spacing for frequency bands
@@ -199,26 +199,26 @@ def narrow_band_processing_parameters_plot(rij, FREQ_BAND_TYPE, freqlist, WINLEN
     for ii in range(NBANDS):
         if FREQ_BAND_TYPE == '2_octave_over':
             height.append(freqlist[ii+2]- freqlist[ii])
-        else:   
+        else:
             height.append(freqlist[ii+1]- freqlist[ii])
 
     fig = plt.figure(figsize=(10,10))
     gs = gridspec.GridSpec(2,2)
 
-    ax0 = plt.subplot(gs[0,0]) 
-    ax0.scatter(rij[0], rij[1]) 
+    ax0 = plt.subplot(gs[0,0])
+    ax0.scatter(rij[0], rij[1])
     ax0.set_xlabel('X [km]', fontsize=fonts+2, fontweight='bold')
     ax0.set_ylabel('Y [km]', fontsize=fonts+2, fontweight='bold')
     ax0.axis('square')
     ax0.grid()
     ax0.set_title('a) Array Geometry', loc='left', fontsize=fonts+2, fontweight='bold')
 
-    ax1 = plt.subplot(gs[0,1]) 
+    ax1 = plt.subplot(gs[0,1])
     if FREQ_BAND_TYPE == '2_octave_over':
         ax1.barh(freqlist[:-2], WINLEN_list, height=height, align='edge', color='grey', edgecolor='k', alpha=0.25)
     else:
         ax1.barh(freqlist[:-1], WINLEN_list, height=height, align='edge', color='grey', edgecolor='k', alpha=0.5)
-    
+
     if FREQ_BAND_TYPE == 'linear':
         ax1.set_ylim(-0.1,FMAX+1)
     else:
@@ -234,9 +234,9 @@ def narrow_band_processing_parameters_plot(rij, FREQ_BAND_TYPE, freqlist, WINLEN
     ax1.set_title('b) Window Length', loc='left', fontsize=fonts+2, fontweight='bold')
     ax1.text(0.02, 0.95, '# of Bands = ' + str(NBANDS), transform=ax1.transAxes, horizontalalignment='left', fontsize=fonts-2)
     ax1.text(0.98, 0.95, 'FMIN = ' + str(round(FMIN, 2)) + ', FMAX = ' + str(round(FMAX, 2)), transform=ax1.transAxes, horizontalalignment='right', fontsize=fonts-2)
-    
 
-    ax2 = plt.subplot(gs[1,0:2]) 
+
+    ax2 = plt.subplot(gs[1,0:2])
     for ii in range(NBANDS):
         temp_w = w_array[ii,:-1]
         temp_h = h_array[ii,:-1]
@@ -301,7 +301,7 @@ def narrow_band_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_array
     ax4 = plt.subplot(gs[4,0])  # Scatter Plot
     ax5 = plt.subplot(gs[5,0])  # Scatter Plot Trace Velocity
 
-    for ii in range(NBANDS): 
+    for ii in range(NBANDS):
         # Check if overlapping bands
         if FREQ_BAND_TYPE == '2_octave_over':
             tempfmin = freqlist[ii]
@@ -348,7 +348,7 @@ def narrow_band_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_array
         baz_good = [baz_float[jj] for jj in mdccm_good_idx]
         t_good = [t_float[jj] for jj in mdccm_good_idx]
 
-       
+
         # Plot the scatter points
         tempfavg_array = np.repeat(tempfavg, len(t_good))
         # Scatter plot
@@ -364,19 +364,19 @@ def narrow_band_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_array
         # Loop through each narrow-band results vector and plot rectangles/scatter points
         for jj in range(len(t_float)-1):
             width_temp = t_float[jj+1] - t_float[jj]
-            if mdccm_float[jj] >= MDCCM_THRESH: 
+            if mdccm_float[jj] >= MDCCM_THRESH:
                 x_temp = t_float[jj]
                 y_temp = tempfmin
 
-                # MdCCM Plot 
+                # MdCCM Plot
                 rect = Rectangle((x_temp, y_temp), width_temp, height_temp, color=colors_mdccm[jj])
                 ax1.add_patch(rect)
 
-                # Backazimuth plot 
+                # Backazimuth plot
                 rect = Rectangle((x_temp, y_temp), width_temp, height_temp, color=colors_baz[jj])
                 ax2.add_patch(rect)
 
-                # Trace Velocity Plot 
+                # Trace Velocity Plot
                 rect = Rectangle((x_temp, y_temp), width_temp, height_temp, color=colors_vel[jj])
                 ax3.add_patch(rect)
 
@@ -384,10 +384,10 @@ def narrow_band_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_array
         # MdCCM Loop through each narrow-band results vector and plot rectangles/scatter points
         for jj in range(len(t_float)-1):
             width_temp = t_float[jj+1] - t_float[jj]
-            if mdccm_float[jj] < MDCCM_THRESH: 
+            if mdccm_float[jj] < MDCCM_THRESH:
                 x_temp = t_float[jj]
                 y_temp = tempfmin
-                # MdCCM Plot 
+                # MdCCM Plot
                 rect = Rectangle((x_temp, y_temp), width_temp, height_temp, color=colors_mdccm[jj], alpha=0.5)
                 ax1.add_patch(rect)
 
@@ -399,24 +399,24 @@ def narrow_band_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_array
     #####################
 
     # Add colorbar to mdccm plot
-    cax = plt.subplot(gs[1,1]) 
-    cb1 = cbar.ColorbarBase(cax, cmap=pl.cm.YlGnBu,norm=normal_mdccm,orientation='vertical') 
+    cax = plt.subplot(gs[1,1])
+    cb1 = cbar.ColorbarBase(cax, cmap=pl.cm.YlGnBu,norm=normal_mdccm,orientation='vertical')
     cax.set_ylabel('MdCCM', fontsize=fonts+2, fontweight='bold')
 
     # Add colorbar to backazimuth plot
-    cax = plt.subplot(gs[2,1]) 
-    cb2 = cbar.ColorbarBase(cax, cmap=pl.cm.turbo,norm=normal_baz,orientation='vertical', ticks=[0,90,180,270,360]) 
+    cax = plt.subplot(gs[2,1])
+    cb2 = cbar.ColorbarBase(cax, cmap=pl.cm.turbo,norm=normal_baz,orientation='vertical', ticks=[0,90,180,270,360])
     cax.set_ylabel('Backazimuth [deg]', fontsize=fonts+2, fontweight='bold')
 
     # Add colorbar to trace velocity plot
-    cax = plt.subplot(gs[3,1]) 
-    cb2 = cbar.ColorbarBase(cax, cmap=pl.cm.turbo,norm=normal_vel,orientation='vertical') 
+    cax = plt.subplot(gs[3,1])
+    cb2 = cbar.ColorbarBase(cax, cmap=pl.cm.turbo,norm=normal_vel,orientation='vertical')
     cax.set_ylabel('Trace Velocity [km/s]', fontsize=fonts+2, fontweight='bold')
 
     # Add colorbar to scatter plot of backazimuth and trace velocity
-    cbaxes = plt.subplot(gs[4:6,1]) 
+    cbaxes = plt.subplot(gs[4:6,1])
     if 'sc' in locals():
-        hc = plt.colorbar(sc, cax=cbaxes,orientation='vertical') 
+        hc = plt.colorbar(sc, cax=cbaxes,orientation='vertical')
     cbaxes.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')
 
 
@@ -425,48 +425,48 @@ def narrow_band_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_array
     ### Format axes ###
     ###################
 
-    # Pressure plot 
+    # Pressure plot
     ax0.xaxis_date()
     ax0.set_xlim(timevec[1], timevec[-1])
-    ax0.set_ylabel('Pressure [Pa]', fontsize=fonts+2, fontweight='bold') 
-    ax0.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax0.set_ylabel('Pressure [Pa]', fontsize=fonts+2, fontweight='bold')
+    ax0.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax0.set_title('a)', loc='left', fontsize=fonts+2, fontweight='bold')
 
     # MdCCM Plot
-    ax1.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')  
-    ax1.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax1.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')
+    ax1.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax1.set_title('b)', loc='left', fontsize=fonts+2, fontweight='bold')
     ax1.xaxis_date()
     ax1.set_ylim(FMIN,FMAX)
     ax1.set_xlim(t_float[0],t_float[-1])
 
     # Backazimuth Plot
-    ax2.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')  
-    ax2.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax2.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')
+    ax2.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax2.set_title('c)', loc='left', fontsize=fonts+2, fontweight='bold')
     ax2.xaxis_date()
     ax2.set_ylim(FMIN,FMAX)
     ax2.set_xlim(t_float[0],t_float[-1])
 
     # Trace Velocity Plot
-    ax3.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')  
-    ax3.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax3.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')
+    ax3.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax3.set_title('d)', loc='left', fontsize=fonts+2, fontweight='bold')
     ax3.xaxis_date()
     ax3.set_ylim(FMIN,FMAX)
     ax3.set_xlim(t_float[0],t_float[-1])
 
     # Scatter Plot
-    ax4.set_ylabel('Backazimuth [deg]', fontsize=fonts+2, fontweight='bold')  
-    ax4.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax4.set_ylabel('Backazimuth [deg]', fontsize=fonts+2, fontweight='bold')
+    ax4.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax4.set_title('e)', loc='left', fontsize=fonts+2, fontweight='bold')
     ax4.xaxis_date()
     ax4.set_ylim(0,360)
     ax4.set_xlim(t_float[0],t_float[-1])
 
     # Scatter Plot
-    ax5.set_ylabel('Trace Velocity [km/s]', fontsize=fonts+2, fontweight='bold')  
-    ax5.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax5.set_ylabel('Trace Velocity [km/s]', fontsize=fonts+2, fontweight='bold')
+    ax5.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax5.set_title('f)', loc='left', fontsize=fonts+2, fontweight='bold')
     ax5.xaxis_date()
     ax5.set_ylim(0.2,0.5)
@@ -494,7 +494,7 @@ def narrow_band_stau_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_
         sig_tau_array: array of sigma tau processing results
         num_compute_list: list of number of windows for each frequency band array processing
         MDCCM_THRESH: Threshold value of MdCCM for plotting; Must be between 0 and 1 [float]
-        ALPHA: Use ordinary least-squares or LTS processing 
+        ALPHA: Use ordinary least-squares or LTS processing
     Returns:
         fig: Figure handle (:class:`~matplotlib.figure.Figure`)
     '''
@@ -520,7 +520,7 @@ def narrow_band_stau_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_
     ax7 = plt.subplot(gs[7,0])  # Scatter Plot Trace Velocity
 
 
-    for ii in range(NBANDS): 
+    for ii in range(NBANDS):
         # Check if overlapping bands
         if FREQ_BAND_TYPE == '2_octave_over':
             tempfmin = freqlist[ii]
@@ -577,7 +577,7 @@ def narrow_band_stau_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_
         t_good = [t_float[jj] for jj in mdccm_good_idx]
         sig_tau_good = [sig_tau_float[jj] for jj in mdccm_good_idx]
 
-       
+
         # Plot the scatter points
         tempfavg_array = np.repeat(tempfavg, len(t_good))
 
@@ -600,24 +600,24 @@ def narrow_band_stau_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_
         # Loop through each narrow-band results vector and plot rectangles/scatter points
         for jj in range(len(t_float)-1):
             width_temp = t_float[jj+1] - t_float[jj]
-            if mdccm_float[jj] >= MDCCM_THRESH: 
+            if mdccm_float[jj] >= MDCCM_THRESH:
                 x_temp = t_float[jj]
                 y_temp = tempfmin
 
-                # MdCCM Plot 
+                # MdCCM Plot
                 rect = Rectangle((x_temp, y_temp), width_temp, height_temp, color=colors_mdccm[jj])
                 ax1.add_patch(rect)
 
-                # Sigma Tau Plot 
+                # Sigma Tau Plot
                 if ALPHA ==1.0:
                     rect = Rectangle((x_temp, y_temp), width_temp, height_temp, color=colors_sig_tau[jj])
                     ax2.add_patch(rect)
 
-                # Backazimuth plot 
+                # Backazimuth plot
                 rect = Rectangle((x_temp, y_temp), width_temp, height_temp, color=colors_baz[jj])
                 ax3.add_patch(rect)
 
-                # Trace Velocity Plot 
+                # Trace Velocity Plot
                 rect = Rectangle((x_temp, y_temp), width_temp, height_temp, color=colors_vel[jj])
                 ax4.add_patch(rect)
 
@@ -626,10 +626,10 @@ def narrow_band_stau_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_
         # MdCCM Loop through each narrow-band results vector and plot rectangles/scatter points
         for jj in range(len(t_float)-1):
             width_temp = t_float[jj+1] - t_float[jj]
-            if mdccm_float[jj] < MDCCM_THRESH: 
+            if mdccm_float[jj] < MDCCM_THRESH:
                 x_temp = t_float[jj]
                 y_temp = tempfmin
-                # MdCCM Plot 
+                # MdCCM Plot
                 rect = Rectangle((x_temp, y_temp), width_temp, height_temp, color=colors_mdccm[jj], alpha=0.5)
                 ax1.add_patch(rect)
 
@@ -641,29 +641,29 @@ def narrow_band_stau_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_
     #####################
 
     # Add colorbar to mdccm plot
-    cax = plt.subplot(gs[1,1]) 
-    cb1 = cbar.ColorbarBase(cax, cmap=pl.cm.YlGnBu,norm=normal_mdccm,orientation='vertical') 
+    cax = plt.subplot(gs[1,1])
+    cb1 = cbar.ColorbarBase(cax, cmap=pl.cm.YlGnBu,norm=normal_mdccm,orientation='vertical')
     cax.set_ylabel('MdCCM', fontsize=fonts+2, fontweight='bold')
 
     # Add colorbar to sigma tau plot
-    cax = plt.subplot(gs[2,1]) 
-    cb2 = cbar.ColorbarBase(cax, cmap=pl.cm.YlGnBu_r,norm=normal_sig_tau,orientation='vertical') 
+    cax = plt.subplot(gs[2,1])
+    cb2 = cbar.ColorbarBase(cax, cmap=pl.cm.YlGnBu_r,norm=normal_sig_tau,orientation='vertical')
     cax.set_ylabel('Sigma Tau\n('r'$\sigma_\tau$)', fontsize=fonts+2, fontweight='bold')
 
     # Add colorbar to backazimuth plot
-    cax = plt.subplot(gs[3,1]) 
-    cb2 = cbar.ColorbarBase(cax, cmap=pl.cm.turbo,norm=normal_baz,orientation='vertical', ticks=[0,90,180,270,360]) 
+    cax = plt.subplot(gs[3,1])
+    cb2 = cbar.ColorbarBase(cax, cmap=pl.cm.turbo,norm=normal_baz,orientation='vertical', ticks=[0,90,180,270,360])
     cax.set_ylabel('Backazimuth\n[deg]', fontsize=fonts+2, fontweight='bold')
 
     # Add colorbar to trace velocity plot
-    cax = plt.subplot(gs[4,1]) 
-    cb2 = cbar.ColorbarBase(cax, cmap=pl.cm.turbo,norm=normal_vel,orientation='vertical') 
+    cax = plt.subplot(gs[4,1])
+    cb2 = cbar.ColorbarBase(cax, cmap=pl.cm.turbo,norm=normal_vel,orientation='vertical')
     cax.set_ylabel('Trace Velocity\n[km/s]', fontsize=fonts+2, fontweight='bold')
 
     # Add colorbar to scatter plot
-    cbaxes = plt.subplot(gs[5:8,1]) 
+    cbaxes = plt.subplot(gs[5:8,1])
     if 'sc' in locals():
-        hc = plt.colorbar(sc, cax=cbaxes,orientation='vertical') 
+        hc = plt.colorbar(sc, cax=cbaxes,orientation='vertical')
     cbaxes.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')
 
 
@@ -672,57 +672,57 @@ def narrow_band_stau_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_
     ### Format axes ###
     ###################
 
-    # Pressure plot 
+    # Pressure plot
     ax0.xaxis_date()
     ax0.set_xlim(timevec[1], timevec[-1])
-    ax0.set_ylabel('Pressure [Pa]', fontsize=fonts+2, fontweight='bold') 
-    ax0.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax0.set_ylabel('Pressure [Pa]', fontsize=fonts+2, fontweight='bold')
+    ax0.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax0.set_title('a)', loc='left', fontsize=fonts+2, fontweight='bold')
     #ax0.set_xticklabels([])
 
     # MdCCM Plot
-    ax1.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')  
-    ax1.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax1.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')
+    ax1.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax1.set_title('b)', loc='left', fontsize=fonts+2, fontweight='bold')
     ax1.xaxis_date()
     ax1.set_ylim(FMIN,FMAX)
     ax1.set_xlim(t_float[0],t_float[-1])
 
     # Sigma Tau Plot
-    ax2.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')  
-    ax2.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax2.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')
+    ax2.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax2.set_title('c)', loc='left', fontsize=fonts+2, fontweight='bold')
     ax2.xaxis_date()
     ax2.set_ylim(FMIN,FMAX)
     ax2.set_xlim(t_float[0],t_float[-1])
 
     # Backazimuth Plot
-    ax3.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')  
-    ax3.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax3.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')
+    ax3.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax3.set_title('d)', loc='left', fontsize=fonts+2, fontweight='bold')
     ax3.xaxis_date()
     ax3.set_ylim(FMIN,FMAX)
     ax3.set_xlim(t_float[0],t_float[-1])
 
     # Trace Velocity Plot
-    ax4.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')  
-    ax4.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax4.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')
+    ax4.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax4.set_title('e)', loc='left', fontsize=fonts+2, fontweight='bold')
     ax4.xaxis_date()
     ax4.set_ylim(FMIN,FMAX)
     ax4.set_xlim(t_float[0],t_float[-1])
 
     # Scatter Plot
-    ax5.set_ylabel('Sigma Tau\n('r'$\sigma_\tau$)', fontsize=fonts+2, fontweight='bold')  
-    ax5.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax5.set_ylabel('Sigma Tau\n('r'$\sigma_\tau$)', fontsize=fonts+2, fontweight='bold')
+    ax5.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax5.set_title('f)', loc='left', fontsize=fonts+2, fontweight='bold')
     ax5.xaxis_date()
     ax5.set_ylim(-0.5,5)
     ax5.set_xlim(t_float[0],t_float[-1])
 
     # Scatter Plot
-    ax6.set_ylabel('Backazimuth\n[deg]', fontsize=fonts+2, fontweight='bold')  
-    ax6.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax6.set_ylabel('Backazimuth\n[deg]', fontsize=fonts+2, fontweight='bold')
+    ax6.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax6.set_title('g)', loc='left', fontsize=fonts+2, fontweight='bold')
     ax6.xaxis_date()
     ax6.set_ylim(0,360)
@@ -730,8 +730,8 @@ def narrow_band_stau_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_
     ax6.set_xlim(t_float[0],t_float[-1])
 
     # Scatter Plot
-    ax7.set_ylabel('Trace Velocity\n[km/s]', fontsize=fonts+2, fontweight='bold')  
-    ax7.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax7.set_ylabel('Trace Velocity\n[km/s]', fontsize=fonts+2, fontweight='bold')
+    ax7.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax7.set_title('h)', loc='left', fontsize=fonts+2, fontweight='bold')
     ax7.xaxis_date()
     ax7.set_ylim(0.2,0.5)
@@ -764,7 +764,7 @@ def narrow_band_lts_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_a
         stdict: dictionary with dropped elements for LTS [dictionary]
         num_compute_list: list of number of windows for each frequency band array processing
         MDCCM_THRESH: Threshold value of MdCCM for plotting; Must be between 0 and 1 [float]
-        ALPHA: Use ordinary least-squares or LTS processing 
+        ALPHA: Use ordinary least-squares or LTS processing
     Returns:
         fig: Figure handle (:class:`~matplotlib.figure.Figure`)
     '''
@@ -789,7 +789,7 @@ def narrow_band_lts_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_a
     ax6 = plt.subplot(gs[6,0])  # Scatter Plot; Dropped stations
 
 
-    for ii in range(NBANDS): 
+    for ii in range(NBANDS):
         # Check if overlapping bands
         if FREQ_BAND_TYPE == '2_octave_over':
             tempfmin = freqlist[ii]
@@ -837,7 +837,7 @@ def narrow_band_lts_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_a
         baz_good = [baz_float[jj] for jj in mdccm_good_idx]
         t_good = [t_float[jj] for jj in mdccm_good_idx]
 
-       
+
         # Plot the scatter points
         tempfavg_array = np.repeat(tempfavg, len(t_good))
 
@@ -854,19 +854,19 @@ def narrow_band_lts_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_a
         # Loop through each narrow-band results vector and plot rectangles/scatter points
         for jj in range(len(t_float)-1):
             width_temp = t_float[jj+1] - t_float[jj]
-            if mdccm_float[jj] >= MDCCM_THRESH: 
+            if mdccm_float[jj] >= MDCCM_THRESH:
                 x_temp = t_float[jj]
                 y_temp = tempfmin
 
-                # MdCCM Plot 
+                # MdCCM Plot
                 rect = Rectangle((x_temp, y_temp), width_temp, height_temp, color=colors_mdccm[jj])
                 ax1.add_patch(rect)
 
-                # Backazimuth plot 
+                # Backazimuth plot
                 rect = Rectangle((x_temp, y_temp), width_temp, height_temp, color=colors_baz[jj])
                 ax2.add_patch(rect)
 
-                # Trace Velocity Plot 
+                # Trace Velocity Plot
                 rect = Rectangle((x_temp, y_temp), width_temp, height_temp, color=colors_vel[jj])
                 ax3.add_patch(rect)
 
@@ -875,10 +875,10 @@ def narrow_band_lts_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_a
         # MdCCM Loop through each narrow-band results vector and plot rectangles/scatter points
         for jj in range(len(t_float)-1):
             width_temp = t_float[jj+1] - t_float[jj]
-            if mdccm_float[jj] < MDCCM_THRESH: 
+            if mdccm_float[jj] < MDCCM_THRESH:
                 x_temp = t_float[jj]
                 y_temp = tempfmin
-                # MdCCM Plot 
+                # MdCCM Plot
                 rect = Rectangle((x_temp, y_temp), width_temp, height_temp, color=colors_mdccm[jj], alpha=0.5)
                 ax1.add_patch(rect)
 
@@ -892,7 +892,7 @@ def narrow_band_lts_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_a
         ax6.set_title('g)', loc='left', fontsize=fonts+2, fontweight='bold')
         if ALPHA == 1.0:
             print('You used ALPHA = 1.0. It would be better to use "narrow_band_stau_plot".')
-        elif ALPHA < 1.0: 
+        elif ALPHA < 1.0:
             ndict = deepcopy(stdict)
             band_num = str(ii+1).zfill(2)
             temp_dict = {}
@@ -902,7 +902,7 @@ def narrow_band_lts_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_a
                         new_key = key[3:]
                         temp_dict[new_key] = ndict[key]
                 elif key == 'size':
-                    temp_dict[key] = ndict[key] 
+                    temp_dict[key] = ndict[key]
 
             n = temp_dict['size']
             temp_dict.pop('size', None)
@@ -918,7 +918,7 @@ def narrow_band_lts_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_a
             ax6.axis('tight')
             ax6.set_ylim(0.5, n+0.5)
             ax6.set_xlim(t_float[0], t_float[-1])
-        
+
 
             # 'tstampsfloat' values are rounded to 7 places after the decimal because it was saved as a str in dict
             # round 't_float' to the same so the values can be compared for MdCCM check
@@ -952,25 +952,25 @@ def narrow_band_lts_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_a
     #####################
 
     # Add colorbar to mdccm plot
-    cax = plt.subplot(gs[1,1]) 
-    cb1 = cbar.ColorbarBase(cax, cmap=pl.cm.YlGnBu,norm=normal_mdccm,orientation='vertical') 
+    cax = plt.subplot(gs[1,1])
+    cb1 = cbar.ColorbarBase(cax, cmap=pl.cm.YlGnBu,norm=normal_mdccm,orientation='vertical')
     cax.set_ylabel('MdCCM', fontsize=fonts+2, fontweight='bold')
 
 
     # Add colorbar to backazimuth plot
-    cax = plt.subplot(gs[2,1]) 
-    cb2 = cbar.ColorbarBase(cax, cmap=pl.cm.turbo,norm=normal_baz,orientation='vertical', ticks=[0,90,180,270,360]) 
+    cax = plt.subplot(gs[2,1])
+    cb2 = cbar.ColorbarBase(cax, cmap=pl.cm.turbo,norm=normal_baz,orientation='vertical', ticks=[0,90,180,270,360])
     cax.set_ylabel('Backazimuth\n[deg]', fontsize=fonts+2, fontweight='bold')
 
     # Add colorbar to trace velocity plot
-    cax = plt.subplot(gs[3,1]) 
-    cb2 = cbar.ColorbarBase(cax, cmap=pl.cm.turbo,norm=normal_vel,orientation='vertical') 
+    cax = plt.subplot(gs[3,1])
+    cb2 = cbar.ColorbarBase(cax, cmap=pl.cm.turbo,norm=normal_vel,orientation='vertical')
     cax.set_ylabel('Trace Velocity\n[km/s]', fontsize=fonts+2, fontweight='bold')
 
     # Add colorbar to scatter plot
-    cbaxes = plt.subplot(gs[4:6,1]) 
+    cbaxes = plt.subplot(gs[4:6,1])
     if 'sc' in locals():
-        hc = plt.colorbar(sc, cax=cbaxes,orientation='vertical') 
+        hc = plt.colorbar(sc, cax=cbaxes,orientation='vertical')
     cbaxes.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')
 
 
@@ -979,17 +979,17 @@ def narrow_band_lts_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_a
     ### Format axes ###
     ###################
 
-    # Pressure plot 
+    # Pressure plot
     ax0.xaxis_date()
     ax0.set_xlim(timevec[1], timevec[-1])
-    ax0.set_ylabel('Pressure [Pa]', fontsize=fonts+2, fontweight='bold') 
-    ax0.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax0.set_ylabel('Pressure [Pa]', fontsize=fonts+2, fontweight='bold')
+    ax0.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax0.set_title('a)', loc='left', fontsize=fonts+2, fontweight='bold')
     #ax0.set_xticklabels([])
 
     # MdCCM Plot
-    ax1.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')  
-    ax1.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax1.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')
+    ax1.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax1.set_title('b)', loc='left', fontsize=fonts+2, fontweight='bold')
     ax1.xaxis_date()
     ax1.set_ylim(FMIN,FMAX)
@@ -997,16 +997,16 @@ def narrow_band_lts_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_a
 
 
     # Backazimuth Plot
-    ax2.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')  
-    ax2.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax2.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')
+    ax2.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax2.set_title('c)', loc='left', fontsize=fonts+2, fontweight='bold')
     ax2.xaxis_date()
     ax2.set_ylim(FMIN,FMAX)
     ax2.set_xlim(t_float[0],t_float[-1])
 
     # Trace Velocity Plot
-    ax3.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')  
-    ax3.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax3.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')
+    ax3.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax3.set_title('d)', loc='left', fontsize=fonts+2, fontweight='bold')
     ax3.xaxis_date()
     ax3.set_ylim(FMIN,FMAX)
@@ -1014,8 +1014,8 @@ def narrow_band_lts_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_a
 
 
     # Scatter Plot
-    ax4.set_ylabel('Backazimuth\n[deg]', fontsize=fonts+2, fontweight='bold')  
-    ax4.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax4.set_ylabel('Backazimuth\n[deg]', fontsize=fonts+2, fontweight='bold')
+    ax4.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax4.set_title('e)', loc='left', fontsize=fonts+2, fontweight='bold')
     ax4.xaxis_date()
     ax4.set_ylim(0,360)
@@ -1023,8 +1023,8 @@ def narrow_band_lts_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, vel_a
     ax4.set_xlim(t_float[0],t_float[-1])
 
     # Scatter Plot
-    ax5.set_ylabel('Trace Velocity\n[km/s]', fontsize=fonts+2, fontweight='bold')  
-    ax5.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold') 
+    ax5.set_ylabel('Trace Velocity\n[km/s]', fontsize=fonts+2, fontweight='bold')
+    ax5.set_xlabel('Time [UTC]', fontsize=fonts+2, fontweight='bold')
     ax5.set_title('f)', loc='left', fontsize=fonts+2, fontweight='bold')
     ax5.xaxis_date()
     ax5.set_ylim(0.2,0.5)
@@ -1089,7 +1089,7 @@ def narrow_band_lts_dropped_station_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_
         t_float = t_temp[:num_compute_list[ii]]
         mdccm_float = mdccm_temp[:num_compute_list[ii]]
 
-        # Dropped station pairs from LTS for this specific band 
+        # Dropped station pairs from LTS for this specific band
         ndict = deepcopy(stdict)
         band_num = str(ii+1).zfill(2)
         temp_dict = {}
@@ -1099,7 +1099,7 @@ def narrow_band_lts_dropped_station_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_
                     new_key = key[3:]
                     temp_dict[new_key] = ndict[key]
             elif key == 'size':
-                temp_dict[key] = ndict[key] 
+                temp_dict[key] = ndict[key]
 
         n = temp_dict['size']
         temp_dict.pop('size', None)
@@ -1114,7 +1114,7 @@ def narrow_band_lts_dropped_station_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_
         # Rectangle colormap
         normal_element = pl.Normalize(0.5, n-0.5)
 
-        # Plot dropped station pairs from LTS 
+        # Plot dropped station pairs from LTS
         for kk in range(num_sta):
             ax = plt.subplot(gs[kk,0])
             ax.scatter(np.array([t_float[0], t_float[-1]]), np.array([0.01, 0.01]), c='w')
@@ -1136,7 +1136,7 @@ def narrow_band_lts_dropped_station_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_
         # Loop through the stdict for each flag and plot
         for jj in range(len(tstamps)):
             # Check if the MdCCM is surpassed for this time; plot only if it is
-            
+
             try:
                 ind = t_float_round.index(tstampsfloat[jj])
             except:
@@ -1162,7 +1162,7 @@ def narrow_band_lts_dropped_station_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_
 
     # Add the colorbar for station pairs.
     axc = plt.subplot(gs[0:num_sta+1,1])  # Colorbar; Dropped stations
-    cb2 = cbar.ColorbarBase(axc, cmap=cm2,norm=normal_element) 
+    cb2 = cbar.ColorbarBase(axc, cmap=cm2,norm=normal_element)
     axc.set_ylabel('# of Flagged Element Pairs', fontsize=fonts+2, fontweight='bold')
 
 
@@ -1224,7 +1224,7 @@ def baz_freq_plot(FMIN, FMAX, NBANDS, freqlist, vel_array, baz_array, mdccm_arra
         mdccm_float = mdccm_temp[:num_compute_list[ii]]
         t_float = t_temp[:num_compute_list[ii]]
 
-        
+
         # Find indices where mdccm_float >= MDCCM_THRESH
         mdccm_good_idx = [jj for jj,v in enumerate(mdccm_float) if v > MDCCM_THRESH]
         # Trim array to only have the indices where mdccm_float >= MDCCM_THRESH
@@ -1249,8 +1249,8 @@ def baz_freq_plot(FMIN, FMAX, NBANDS, freqlist, vel_array, baz_array, mdccm_arra
     ### Add colorbars ###
     #####################
     # Add colorbar to scatter plot
-    cbaxes = plt.subplot(gs[0,1]) 
-    hc = plt.colorbar(sc, cax=cbaxes,orientation='vertical') 
+    cbaxes = plt.subplot(gs[0,1])
+    hc = plt.colorbar(sc, cax=cbaxes,orientation='vertical')
     cbaxes.set_ylabel('Frequency [Hz]', fontsize=fonts+2, fontweight='bold')
 
 
@@ -1258,8 +1258,8 @@ def baz_freq_plot(FMIN, FMAX, NBANDS, freqlist, vel_array, baz_array, mdccm_arra
     ### Format axes ###
     ###################
     # Scatter Plot
-    ax1.set_ylabel('Backazimuth [deg]', fontsize=fonts+2, fontweight='bold')  
-    ax1.set_xlabel('Time', fontsize=fonts+2, fontweight='bold') 
+    ax1.set_ylabel('Backazimuth [deg]', fontsize=fonts+2, fontweight='bold')
+    ax1.set_xlabel('Time', fontsize=fonts+2, fontweight='bold')
     ax1.xaxis_date()
     ax1.set_ylim(0,360)
     ax1.set_xlim(t_float[0],t_float[-1])
@@ -1267,4 +1267,3 @@ def baz_freq_plot(FMIN, FMAX, NBANDS, freqlist, vel_array, baz_array, mdccm_arra
 
     plt.tight_layout()
     return fig
-

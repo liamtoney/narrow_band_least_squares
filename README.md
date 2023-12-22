@@ -41,4 +41,3 @@ Bishop, J. W., Fee, D., and Szuberla, C. A. L. (2020).  Improved infrasound arra
 
 ## Contact Information
 For any questions, please contact Alex Iezzi (amiezzi@alaska.edu).
-

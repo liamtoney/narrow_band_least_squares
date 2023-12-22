@@ -321,6 +321,3 @@ def narrow_band_least_squares_parallel(WINLEN_list, WINOVER, ALPHA, st, lat_list
 
 
     return vel_array, baz_array, mdccm_array, t_array, stdict_all, sig_tau_array, num_compute_list, w_array, h_array
-
-
-

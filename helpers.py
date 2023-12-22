@@ -1,6 +1,6 @@
 import numpy as np
 import math as math
-from scipy import signal 
+from scipy import signal
 
 
 
@@ -92,7 +92,7 @@ def get_winlenlist(WINDOW_LENGTH_TYPE, NBANDS, WINLEN, WINLEN_1, WINLEN_X):
         WINLEN_list: list of window length for narrow-band processing
     '''
     if WINDOW_LENGTH_TYPE == 'constant':
-        WINLEN_list = [] 
+        WINLEN_list = []
         for ii in range(NBANDS):
             WINLEN_list.append(WINLEN)
     elif WINDOW_LENGTH_TYPE == 'adaptive':
@@ -122,10 +122,10 @@ def filter_data(st, FILTER_TYPE, FMIN, FMAX, FILTER_ORDER, FILTER_RIPPLE):
     '''
     stf = st.copy()
     Fs = stf[0].stats.sampling_rate
-    if FILTER_TYPE == 'butter': 
+    if FILTER_TYPE == 'butter':
         stf.filter('bandpass', freqmin = FMIN, freqmax = FMAX, corners=FILTER_ORDER, zerophase = True)
-        sos = signal.iirfilter(FILTER_ORDER, [FMIN, FMAX], btype='band',ftype='butter', fs=Fs, output='sos')    
-    elif FILTER_TYPE == 'cheby1': 
+        sos = signal.iirfilter(FILTER_ORDER, [FMIN, FMAX], btype='band',ftype='butter', fs=Fs, output='sos')
+    elif FILTER_TYPE == 'cheby1':
         sos = signal.iirfilter(FILTER_ORDER, [FMIN, FMAX], rp=FILTER_RIPPLE, btype='band', analog=False, ftype='cheby1', fs=Fs,output='sos')
         for ii in range(len(st)):
             # Put signal in numpy array
@@ -163,10 +163,10 @@ def write_txtfile(save_dir, fname,  vel_array, baz_array, mdccm_array, t_array, 
     Args:
         save_dir: directory in which to save output file
         fname: output filename root
-        vel_array: numpy array with trace velocity results 
-        baz_array: numpy array with backazimuth results 
-        mdccm_array: numpy array with mdccm results 
-        t_array: numpy array with times for array processing results 
+        vel_array: numpy array with trace velocity results
+        baz_array: numpy array with backazimuth results
+        mdccm_array: numpy array with mdccm results
+        t_array: numpy array with times for array processing results
         freqlist: list of narrow frequency band limits
         num_compute_list: length for processing reults in each frequency band
     Returns:
@@ -188,10 +188,10 @@ def read_txtfile(save_dir, fname):
         save_dir: directory in which to save output file
         fname: output filename root
     Returns:
-        vel_array: numpy array with trace velocity results 
-        baz_array: numpy array with backazimuth results 
-        mdccm_array: numpy array with mdccm results 
-        t_array: numpy array with times for array processing results 
+        vel_array: numpy array with trace velocity results
+        baz_array: numpy array with backazimuth results
+        mdccm_array: numpy array with mdccm results
+        t_array: numpy array with times for array processing results
         freqlist: list of narrow frequency band limits
         num_compute_list: length for processing reults in each frequency band
     '''
