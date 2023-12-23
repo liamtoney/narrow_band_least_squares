@@ -1,6 +1,7 @@
 | This fork simply adds a new plotting function, `baz_mdccm_plot()`, which produces the following (example) type of plot: |
-| ----------------------------------------------------------------------------------------------------------------------- |
+| :---------------------------------------------------------------------------------------------------------------------- |
 | ![](baz_mdccm_plot_example.png)                                                                                         |
+| MdCCM is mapped to transparency, and back azimuth is mapped to color. The waveform gets superimposed on the image plot. |
 
 # narrow_band_least_squares
 Uses the open source [uafgeotools/lts_array](https://github.com/uafgeotools/lts_array) in multiple sequential narrow frequency bands.
