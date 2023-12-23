@@ -12,7 +12,7 @@ fig = baz_mdccm_plot(FMIN, FMAX, st, NBANDS, freqlist, FREQ_BAND_TYPE, baz_array
 fig.axes[0].set_ylim(2, 14)
 fig.axes[0].set_xlim(left=UTCDateTime('2022-11-29T03:25').matplotlib_date)
 fig.axes[4].set_ylim(-10, 10)
-fig.savefig('/Users/ldtoney/Downloads/out.pdf', bbox_inches='tight', dpi=300)
+fig.savefig('/Users/ltoney/Downloads/baz_mdccm_plot_example.png', bbox_inches='tight', dpi=300)
 """
 
 ####################################################################################
