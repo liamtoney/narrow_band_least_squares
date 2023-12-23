@@ -1,3 +1,7 @@
+| This fork simply adds a new plotting function, `baz_mdccm_plot()`, which produces the following (example) type of plot: |
+| ----------------------------------------------------------------------------------------------------------------------- |
+| ![](baz_mdccm_plot_example.png)                                                                                         |
+
 # narrow_band_least_squares
 Uses the open source [uafgeotools/lts_array](https://github.com/uafgeotools/lts_array) in multiple sequential narrow frequency bands.
  
