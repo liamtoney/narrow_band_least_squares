@@ -1,0 +1,12 @@
+name: nbls
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python<3.11  
+  - fastkml
+  - ipython
+  - obspy
+  - numba
+  - joblib
+  - pip
